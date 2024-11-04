@@ -111,10 +111,24 @@ class Game_2048():
                             merged[i][4 - j + shift] = True
         return board
 
-
-    # spawn in new pieces randomly when turns start
     @staticmethod
-    def new_pieces(board):
+    def check_board(matrix):
+        rows = len(matrix)
+        cols = len(matrix[0])
+
+        for row in range(rows):
+            for col in range(cols):
+                current_element = matrix[row][col]
+                if col + 1 < cols and matrix[row][col + 1] == current_element \
+                    or row + 1 < rows and matrix[row + 1][col] == current_element \
+                    or row -1 >= 0 and matrix[row -1][col] == current_element \
+                    or col -1 >=0  and matrix[row][col -1] == current_element:
+                    return True
+
+        return False
+    
+    # spawn in new pieces randomly when turns start
+    def new_pieces(self,board):
         count = 0
         full = False
         while any(0 in row for row in board) and count < 1:
@@ -126,11 +140,12 @@ class Game_2048():
                     board[row][col] = 4
                 else:
                     board[row][col] = 2
-        if count < 1:
+        if count < 1 and not self.check_board(board):
             full = True
+        
         return board, full
 
-
+    
     # draw background for the board
     def draw_board(self):
         pygame.draw.rect(self.screen, colors['bg'], [0, 0, 400, 400], 0, 10)
@@ -182,6 +197,7 @@ class Game_2048():
                 self.spawn_new = False
                 self.init_count += 1
             if game_over:
+
                 self.draw_over()
                 if self.high_score > self.init_high:
                     file = open('high_score', 'w')
